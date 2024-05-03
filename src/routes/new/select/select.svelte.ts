@@ -235,6 +235,7 @@ export class SelectState extends ListboxState {
 
 	trigger = $state<SelectTrigger>();
 	content = $state<SelectContent>();
+	label = $state<SelectLabel>();
 
 	constructor() {
 		super();
@@ -312,3 +313,31 @@ export class SelectContent extends Listbox {
 }
 
 export class SelectItem extends ListboxItem {}
+
+export class SelectGroup extends UiElement {
+	constructor() {
+		super();
+	}
+
+	get props() {
+		return {
+			id: this.id,
+			role: 'group'
+		};
+	}
+}
+
+export class SelectLabel extends UiElement {
+	#state = SelectState.use();
+
+	constructor() {
+		super();
+		this.register((v) => (this.#state.label = v));
+	}
+
+	get props() {
+		return {
+			id: this.id
+		};
+	}
+}
