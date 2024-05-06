@@ -20,3 +20,17 @@ export function portal(node: HTMLElement, target?: HTMLElement | string) {
 		destroy
 	};
 }
+
+export function usePortal(node: HTMLElement, target: HTMLElement | string = document.body) {
+	const el = typeof target === 'string' ? document.querySelector(target) : target;
+	if (!(el instanceof HTMLElement)) {
+		throw new Error('Portal target not found');
+	}
+
+	el.appendChild(node);
+	el.hidden = false;
+
+	return () => {
+		node.remove();
+	};
+}

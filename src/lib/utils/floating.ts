@@ -10,10 +10,7 @@ import {
 	type Strategy
 } from '@floating-ui/dom';
 
-export interface FloatingOptions {
-	reference: ReferenceElement;
-	floating: HTMLElement;
-
+export interface FloatingConfig {
 	placement?: Placement;
 	strategy?: Strategy;
 	overflowPadding?: number;
@@ -21,6 +18,11 @@ export interface FloatingOptions {
 	flip?: boolean;
 	sameWidth?: boolean;
 	fitViewport?: boolean;
+}
+
+export interface FloatingOptions extends FloatingConfig {
+	reference: ReferenceElement;
+	floating: HTMLElement;
 }
 
 export function useFloating({
