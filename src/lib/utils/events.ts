@@ -1,4 +1,4 @@
-interface EventModifiers {
+export interface EventModifiers {
 	self?: boolean;
 	stopPropagation?: boolean;
 	stopImmediatePropagation?: boolean;
@@ -23,7 +23,11 @@ export function modifiers<T extends Event>(
 export function listen<E extends EventTarget, K extends keyof HTMLElementEventMap>(
 	element: E,
 	type: K,
-	fn: (event: HTMLElementEventMap[K]) => void,
+	fn: (
+		event: HTMLElementEventMap[K] & {
+			currentTarget: HTMLElement;
+		}
+	) => void,
 	options?: AddEventListenerOptions & EventModifiers
 ) {
 	const cb: any = options ? modifiers(options, fn) : fn;

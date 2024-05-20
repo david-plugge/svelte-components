@@ -1,16 +1,24 @@
-export interface Ref<T> {
-	value: T;
+export class Ref<T> {
+	#value = $state() as T;
+
+	constructor(value: T) {
+		this.#value = value;
+	}
+
+	get value() {
+		return this.#value;
+	}
+	set value(value) {
+		this.#value = value;
+	}
+
+	onChange(fn: (value: T) => void) {
+		return $effect.root(() => {
+			fn(this.value);
+		});
+	}
 }
 
 export function ref<T>(value: T): Ref<T> {
-	let state = $state(value);
-
-	return {
-		get value() {
-			return state;
-		},
-		set value(newValue) {
-			state = newValue;
-		}
-	};
+	return new Ref(value);
 }
