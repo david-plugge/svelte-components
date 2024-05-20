@@ -16,6 +16,7 @@
 
 <div
 	id={state.id}
+	tabindex="-1"
 	role="option"
 	aria-selected={state.selected}
 	{...attributes}

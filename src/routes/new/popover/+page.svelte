@@ -219,8 +219,6 @@
 	});
 	const trigger = new PopoverTrigger(root);
 	const content = new PopoverContent(root);
-
-	class SelectRoot extends PopoverRoot {}
 </script>
 
 <div>
