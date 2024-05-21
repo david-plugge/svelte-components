@@ -58,12 +58,33 @@
 
 	import { useFloating, type FloatingConfig } from '$lib/utils/floating';
 	import { generateId } from '$lib/utils/id';
-	import { portal, usePortal } from '$lib/utils/portal';
+	import { usePortal } from '$lib/utils/portal';
 	import type { Action } from 'svelte/action';
 
 	interface PopoverRootProps {
 		open?: WritableProp<boolean>;
 		positioning?: ReadableProp<FloatingConfig>;
+		triggerId?: ReadableProp<string>;
+		contentId?: ReadableProp<string>;
+	}
+
+	class PopoverState {
+		open: WritableBox<boolean>;
+		positioning: ReadableBox<FloatingConfig>;
+		triggerId: ReadableBox<string>;
+		contentId: ReadableBox<string>;
+
+		constructor({
+			open = false,
+			positioning = { placement: 'bottom' },
+			triggerId = generateId(),
+			contentId = generateId()
+		}: PopoverRootProps = {}) {
+			this.open = Box.writable(open);
+			this.positioning = Box.readable(positioning);
+			this.triggerId = Box.readable(triggerId);
+			this.contentId = Box.readable(contentId);
+		}
 	}
 
 	class PopoverRoot {
@@ -219,8 +240,6 @@
 	});
 	const trigger = new PopoverTrigger(root);
 	const content = new PopoverContent(root);
-
-	class SelectRoot extends PopoverRoot {}
 </script>
 
 <div>

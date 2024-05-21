@@ -33,8 +33,19 @@ export function listen<E extends EventTarget, K extends keyof HTMLElementEventMa
 
 export function clickOutside(node: HTMLElement, fn: (event: MouseEvent) => void) {
 	return listen(window, 'click', (event) => {
-		if (event.target instanceof HTMLElement && !node.contains(event.target)) {
+		if (isOutside(event, node)) {
 			fn(event);
 		}
 	});
+}
+
+export function isOutside(event: Event, ...nodes: HTMLElement[]) {
+	if (!(event.target instanceof HTMLElement)) return true;
+
+	for (const node of nodes) {
+		if (node.contains(event.target)) {
+			return false;
+		}
+	}
+	return true;
 }

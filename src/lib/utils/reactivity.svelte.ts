@@ -63,3 +63,30 @@ export namespace ReactiveObject {
 		});
 	}
 }
+
+export function sync<T>(o: {
+	setA: (value: T) => void;
+	getA: () => T;
+	setB: (value: T) => void;
+	getB: () => T;
+}) {
+	$effect(() => {
+		console.log('SET A');
+		o.setA(o.getB());
+	});
+	$effect(() => {
+		console.log('SET B');
+		o.setB(o.getA());
+	});
+}
+
+// export function sync<T>(obj: { a: T; b: T }) {
+// 	$effect(() => {
+// 		console.log('SET A');
+// 		obj.a = obj.b;
+// 	});
+// 	$effect(() => {
+// 		console.log('SET B');
+// 		obj.b = obj.a;
+// 	});
+// }

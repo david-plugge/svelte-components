@@ -8,6 +8,8 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	const __sync_runes__: <T>(a: T, b: T) => void;
 }
 
 export {};
