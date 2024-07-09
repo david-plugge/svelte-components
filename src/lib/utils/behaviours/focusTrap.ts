@@ -21,7 +21,7 @@ function getFocusableElements(parent: ParentNode = document) {
 		'textarea:not([disabled]):not([tabindex="-1"])',
 		'audio[controls]:not([tabindex="-1"])',
 		'video[controls]:not([tabindex="-1"])',
-        'details'
+		'details',
 
 		'[tabindex]:not([tabindex="-1"])'
 	];
