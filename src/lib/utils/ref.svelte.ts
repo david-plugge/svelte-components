@@ -11,12 +11,6 @@ export class Ref<T> {
 	set value(value) {
 		this.#value = value;
 	}
-
-	onChange(fn: (value: T) => void) {
-		return $effect.root(() => {
-			fn(this.value);
-		});
-	}
 }
 
 export function ref<T>(value: T): Ref<T> {

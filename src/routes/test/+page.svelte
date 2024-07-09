@@ -1,49 +1,87 @@
-<script lang="ts">
-	import { ReactiveObject } from '$lib/utils/reactivity';
-
-	class A {
-		a = $state('1');
-		b = $state('1');
-
-		get props() {
-			const that = this;
-			return {
-				get aa() {
-					return that.a;
-				},
-				get bb() {
-					return that.b;
-				}
-			};
-		}
-	}
-
-	class C extends A {
-		c = $state('1');
-		d = $state('1');
-
-		get props() {
-			const that = this;
-			return ReactiveObject.merge(super.props, {
-				get cc() {
-					return that.c;
-				},
-				get dd() {
-					return that.d;
+<script lang="ts" context="module">
+	function useClickOutside(fn: (event: MouseEvent & { currentTarget: HTMLElement }) => void) {
+		return (node: HTMLElement) => {
+			return listen(node, 'click', (event) => {
+				if (!event.currentTarget.contains(node)) {
+					fn(event);
 				}
 			});
-		}
+		};
 	}
-
-	const a = new C();
-
-	$inspect('a', a.props.aa);
-	$inspect('b', a.props.bb);
-	$inspect('c', a.props.cc);
-	$inspect('d', a.props.dd);
 </script>
 
-<input bind:value={a.a} />
-<input bind:value={a.b} />
-<input bind:value={a.c} />
-<input bind:value={a.d} />
+<script lang="ts">
+	import { createAction } from '$lib/utils/behaviors';
+	import { listen } from '$lib/utils/events';
+	import { useFloating } from '$lib/utils/floating';
+	import { generateId } from '$lib/utils/id';
+	import { usePortal } from '$lib/utils/portal';
+	import { fly } from 'svelte/transition';
+
+	function createFloating(options: { reference: string }) {
+		const id = generateId();
+
+		return {
+			action: createAction(
+				(node) =>
+					useFloating({
+						floating: node,
+						...options,
+						reference: document.getElementById(options.reference)!
+					}),
+				usePortal
+			),
+			props: {
+				get id() {
+					return id;
+				}
+			} as const
+		};
+	}
+
+	function createTrigger() {
+		const id = generateId();
+
+		return {
+			action: createAction((node) => listen(node, 'click', () => {})),
+			props: {
+				type: 'button',
+				get id() {
+					return id;
+				}
+			} as const
+		};
+	}
+
+	function createPopover() {
+		const id = generateId();
+		let open = $state(false);
+
+		return {
+			get open() {
+				return open;
+			},
+			set open(value) {
+				open = value;
+			},
+			props: {
+				get id() {
+					return id;
+				}
+			} as const
+		};
+	}
+
+	const floating = createFloating({
+		reference: 'trigger'
+	});
+
+	const popover = createPopover();
+	const trigger = createTrigger();
+</script>
+
+<button use:trigger.action {...trigger.props}>Toggle</button>
+
+{#if popover.open}
+	<div transition:fly={{ y: 10 }} {...floating.props} use:floating.action>TEST</div>
+{/if}

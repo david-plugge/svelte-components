@@ -1,13 +1,19 @@
 import { createAction } from '$lib/utils/behaviors';
 import { event } from '$lib/utils/behaviours/event';
-import { float } from '$lib/utils/behaviours/floating';
 import { clickOutside } from '$lib/utils/events';
 import { useFloating } from '$lib/utils/floating';
 import { generateId } from '$lib/utils/id';
+import { Set } from 'svelte/reactivity';
 
-export class Select {
+export interface Selectable<T> {
+	value: T;
+	label: string;
+}
+
+export class Select<T> {
 	#open = $state(false);
 	#multiple = $state(false);
+	#selected = new Set<Selectable<T>>();
 
 	#ids = {
 		trigger: generateId(),
@@ -19,6 +25,10 @@ export class Select {
 	}
 	set open(open) {
 		this.#open = open;
+	}
+
+	get selected() {
+		return [...this.#selected].map((v) => v.value);
 	}
 
 	trigger() {
