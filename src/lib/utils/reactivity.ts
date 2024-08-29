@@ -29,6 +29,10 @@ export namespace ReactiveObject {
 		return target;
 	}
 
+	export function defaults<T extends Record<string, any>>(defaults: T, data: Partial<T>) {
+		return merge(defaults, data) as T;
+	}
+
 	export function merge<A extends Record<string, any>, B extends Record<string, any>>(
 		a: A,
 		b: B

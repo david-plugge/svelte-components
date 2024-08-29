@@ -5,15 +5,15 @@ import { useFloating } from '$lib/utils/floating';
 import { generateId } from '$lib/utils/id';
 import { Set } from 'svelte/reactivity';
 
-export interface Selectable<T> {
+interface SelectItem<T> {
 	value: T;
-	label: string;
+	label?: string;
 }
 
 export class Select<T> {
 	#open = $state(false);
 	#multiple = $state(false);
-	#selected = new Set<Selectable<T>>();
+	#selected = $state<SelectItem<T>[]>([]);
 
 	#ids = {
 		trigger: generateId(),
@@ -132,26 +132,34 @@ export class Select<T> {
 		};
 	}
 
-	item() {
+	item(options: SelectItem<T> & { disabled?: boolean }) {
 		const id = generateId();
 		const selected = $derived(false);
 
+		// $effect(() => {
+		// 	console.log('START', options);
+
+		// 	return () => {
+		// 		console.log('END');
+		// 	};
+		// });
+
 		return {
-			get props() {
-				return {
-					id,
-					role: 'option',
-					get 'aria-selected'() {
-						return selected;
-					}
-				} as const;
+			id,
+			role: 'option',
+			get 'aria-selected'() {
+				return selected;
 			},
-			action: createAction(
-				event('click', () => {}),
-				event('pointerenter', (e) => {
-					e.currentTarget.dataset.highlight = 'true';
-				})
-			)
-		};
+			get 'aria-disabled'() {
+				return options.disabled ? 'true' : undefined;
+			}
+		} as const;
+
+		// acton: createAction(
+		// 	event('click', () => {}),
+		// 	event('pointerenter', (e) => {
+		// 		e.currentTarget.dataset.highlight = 'true';
+		// 	})
+		// )
 	}
 }

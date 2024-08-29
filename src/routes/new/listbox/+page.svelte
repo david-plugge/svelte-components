@@ -230,6 +230,7 @@
 
 		get props() {
 			const that = this;
+
 			return {
 				id: this.id,
 				role: 'option',

@@ -23,7 +23,7 @@
 		</nav>
 	</aside>
 
-	<div class="overflow-auto px-4 py-2">
+	<div class="flex-1 overflow-auto px-4 py-2">
 		{@render children()}
 	</div>
 </div>

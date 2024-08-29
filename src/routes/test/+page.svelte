@@ -1,87 +1,108 @@
-<script lang="ts" context="module">
-	function useClickOutside(fn: (event: MouseEvent & { currentTarget: HTMLElement }) => void) {
-		return (node: HTMLElement) => {
-			return listen(node, 'click', (event) => {
-				if (!event.currentTarget.contains(node)) {
-					fn(event);
+<!-- <script lang="ts" context="module">
+	type Props<T extends HTMLElement> = HTMLAttributes<T>;
+	type Behavior<T extends HTMLElement> = (node: T) => (() => void) | void;
+
+	type Builder<T extends HTMLElement> = {
+		props: Props<T>;
+		behavior: Behavior<T>;
+	};
+
+	function mergeBuilders<T extends HTMLElement>(...builders: Builder<T>[]): Builder<T> {
+		return {
+			behavior: (node) => {
+				const fns = builders.map((b) => b.behavior(node));
+				return () => {
+					fns.forEach((fn) => fn?.());
+				};
+			},
+			get props() {
+				const props = {};
+				for (const builder of builders) {
+					Object.assign(props, builder.props);
 				}
-			});
+				return props;
+			}
 		};
 	}
-</script>
+
+	interface ReadableBox<T> {
+		readonly value: T;
+	}
+	interface WritableBox<T> {
+		value: T;
+	}
+</script> -->
 
 <script lang="ts">
-	import { createAction } from '$lib/utils/behaviors';
+	import { useActions } from '$lib/utils/actions';
 	import { listen } from '$lib/utils/events';
-	import { useFloating } from '$lib/utils/floating';
 	import { generateId } from '$lib/utils/id';
-	import { usePortal } from '$lib/utils/portal';
-	import { fly } from 'svelte/transition';
 
-	function createFloating(options: { reference: string }) {
-		const id = generateId();
+	class Listbox {
+		#id = generateId();
 
-		return {
-			action: createAction(
-				(node) =>
-					useFloating({
-						floating: node,
-						...options,
-						reference: document.getElementById(options.reference)!
-					}),
-				usePortal
-			),
-			props: {
-				get id() {
-					return id;
-				}
-			} as const
-		};
+		get props() {
+			return {
+				role: 'listbox',
+				id: this.#id
+			} as const;
+		}
+
+		action(node: HTMLElement) {
+			return {
+				destroy() {}
+			};
+		}
 	}
 
-	function createTrigger() {
-		const id = generateId();
+	class ListboxItem<T> {
+		#id = generateId();
+		#value: T;
+		#label: string;
 
-		return {
-			action: createAction((node) => listen(node, 'click', () => {})),
-			props: {
-				type: 'button',
-				get id() {
-					return id;
-				}
-			} as const
-		};
+		constructor(options: { value: T; label: string }) {
+			this.#value = options.value;
+			this.#label = options.label;
+		}
+
+		get props() {
+			return {
+				id: this.#id,
+				role: 'option'
+			} as const;
+		}
+
+		action(node: HTMLElement) {
+			return {
+				destroy: useActions(
+					listen(node, 'click', () => {
+						console.log(this.#value);
+					})
+				)
+			};
+		}
+
+		get value() {
+			return this.#value;
+		}
+		get label() {
+			return this.#label;
+		}
 	}
 
-	function createPopover() {
-		const id = generateId();
-		let open = $state(false);
+	const lb = new Listbox();
 
-		return {
-			get open() {
-				return open;
-			},
-			set open(value) {
-				open = value;
-			},
-			props: {
-				get id() {
-					return id;
-				}
-			} as const
-		};
-	}
-
-	const floating = createFloating({
-		reference: 'trigger'
-	});
-
-	const popover = createPopover();
-	const trigger = createTrigger();
+	const items = [
+		new ListboxItem({ value: 1, label: '1' }),
+		new ListboxItem({ value: 2, label: '2' }),
+		new ListboxItem({ value: 3, label: '3' }),
+		new ListboxItem({ value: 4, label: '4' }),
+		new ListboxItem({ value: 5, label: '5' })
+	];
 </script>
 
-<button use:trigger.action {...trigger.props}>Toggle</button>
-
-{#if popover.open}
-	<div transition:fly={{ y: 10 }} {...floating.props} use:floating.action>TEST</div>
-{/if}
+<div {...lb.props} use:lb.action>
+	{#each items as item}
+		<div {...item.props} use:item.action>{item.value}</div>
+	{/each}
+</div>
